@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 # Copyright (c) 2026 Egor Tensin <egor@tensin.name>
-# This file is part of the "Tagger" project.
-# For details, see https://github.com/egor-tensin/tagger
+# This file is part of the "tag-release" project.
+# For details, see https://github.com/egor-tensin/tag-release
 # Distributed under the MIT License.
 
 R"""
