@@ -49,31 +49,30 @@ def setup_logging():
         sys.exit(1)
 
 
+def _run_log_output(level, output):
+    if not output:
+        logging.log(level, "... No output")
+        return
+    logging.log(level, "Output (%d characters):", len(output))
+    for line in output.splitlines():
+        logging.log(level, "    %s", line)
+
+
 def run(*args, **kwargs):
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT
 
     logging.info("Running: %s", subprocess.list2cmdline(args))
-
     try:
         result = subprocess.run(
             args, check=True, stdout=stdout, stderr=stderr, encoding="utf-8", **kwargs
         )
     except subprocess.CalledProcessError as e:
         logging.error("... Returned exit code %d", e.returncode)
-        logging.error("Output (%d characters):", len(e.output))
-        for line in e.output.splitlines():
-            logging.error("    %s", line)
+        _run_log_output(logging.ERROR, e.output)
         raise
 
-    if not result.stdout:
-        logging.info("... No output")
-        return ""
-
-    logging.info("Output (%d characters):", len(result.stdout))
-    for line in result.stdout.splitlines():
-        logging.info("    %s", line)
-
+    _run_log_output(logging.DEBUG, result.stdout)
     return result.stdout
 
 
