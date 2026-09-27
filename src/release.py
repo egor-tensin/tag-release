@@ -267,6 +267,7 @@ class TagManager:
                 if self._strict:
                     raise RuntimeError(msg)
                 logging.warning("%s", msg)
+                continue
             yield refname.removeprefix(self._prefix), objecttype
 
     @staticmethod
