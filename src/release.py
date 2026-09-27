@@ -67,6 +67,16 @@ def run(*args, **kwargs):
     return result.stdout
 
 
+def go_to_repo(repo_dir=None):
+    if repo_dir is not None:
+        os.chdir(repo_dir)
+    try:
+        run(*["git", "rev-parse", "--is-inside-work-tree"])
+    except subprocess.CalledProcessError as e:
+        logging.error("%s doesn't seem to be a git working directory", os.getcwd())
+        raise
+
+
 class ReleaseScope(Enum):
     MAJOR = "major"
     MINOR = "minor"
@@ -386,8 +396,7 @@ v1.2.3).
 def main(argv=None):
     args = parse_args(argv)
     with setup_logging():
-        if args.repo_dir is not None:
-            os.chdir(args.repo_dir)
+        go_to_repo(args.repo_dir)
         tags = TagManager(
             prefix=args.prefix,
             strict=args.strict,
