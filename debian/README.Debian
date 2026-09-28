@@ -1,6 +1,10 @@
 tag-release for Debian
 ---------------------
 
+There's a Vagrantfile to make maintenance easier.  To start, use `vagrant up`,
+then `vagrant ssh`.  The project will be in /vagrant; kill the VM using
+`vagrant destroy -f` when you're done.
+
 There're a bunch of useful one-liners in Makefile.  Everything is built in
 debian/build-area/.
 
