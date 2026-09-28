@@ -1,0 +1,25 @@
+name: Packages (Debian)
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Binary package
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: sudo make -C debian deps
+      - name: Build binary package
+        run: make -C debian bin/test
+      - name: Upload binary package
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-area
+          path: debian/build-area/
+          if-no-files-found: error
