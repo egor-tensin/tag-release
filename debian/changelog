@@ -1,3 +1,11 @@
+tag-release (0.4.4-1) unstable; urgency=medium
+
+  * dependabot: enable for the debian branch
+  * README: add more workflow badges
+  * exclude .git* files from Debian builds
+
+ -- Egor Tensin <egor@tensin.name>  Mon, 28 Sep 2026 06:48:12 +0000
+
 tag-release (0.4.2-2) unstable; urgency=medium
 
   * workflows: add my standard PPA workflows
