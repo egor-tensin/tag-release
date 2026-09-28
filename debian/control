@@ -1,0 +1,12 @@
+Source: tag-release
+Section: devel
+Priority: optional
+Maintainer: Egor Tensin <egor@tensin.name>
+Build-Depends: debhelper-compat (= 10)
+Standards-Version: 4.7.2
+Homepage: https://github.com/egor-tensin/tag-release
+
+Package: tag-release
+Architecture: all
+Depends: python3, ${misc:Depends}
+Description: Automate creation of semantic versioning tags
