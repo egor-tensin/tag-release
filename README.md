@@ -2,6 +2,8 @@ tag-release
 ===========
 
 [![CI](https://github.com/egor-tensin/tag-release/actions/workflows/ci.yml/badge.svg)](https://github.com/egor-tensin/tag-release/actions/workflows/ci.yml)
+[![Packages (Debian)](https://github.com/egor-tensin/tag-release/actions/workflows/debian.yml/badge.svg)](https://github.com/egor-tensin/tag-release/actions/workflows/debian.yml)
+[![Publish (Launchpad)](https://github.com/egor-tensin/tag-release/actions/workflows/ppa.yml/badge.svg)](https://github.com/egor-tensin/tag-release/actions/workflows/ppa.yml)
 
 I'm tired of looking up the correct tag name to use, hence this script.
 It follows the semantic versioning rules.
