@@ -4,46 +4,39 @@
 # Distributed under the MIT License.
 
 test_should_fail=
+test_root_dir=
 
-test_create_repo() {
-    local repo
-    repo="$( mktemp -d )"
+test_repo_workdir=
 
-    log "Creating repository: $repo"
-    echo "$repo"
+test_setup() {
+    test_root_dir="$( mktemp -d )"
 
-    git -C "$repo" init -q
-    git -C "$repo" config user.name 'Test user'
-    git -C "$repo" config user.email 'test@example.com'
-}
+    test_repo_workdir="$test_root_dir/workdir"
+    mkdir -- "$test_repo_workdir"
 
-test_remove_repo() {
-    local repo
-    for repo; do
-        log "Removing repository: $repo"
-        rm -rf -- "$repo"
-    done
+    log "Root directory: $test_root_dir"
+    log "Working directory: $test_repo_workdir"
+
+    git -C "$test_repo_workdir" init -q
+    git -C "$test_repo_workdir" config user.name 'Test user'
+    git -C "$test_repo_workdir" config user.email 'test@example.com'
 }
 
 test_cleanup_default() {
-    [ -n "${test_repo:+x}" ] && test_remove_repo "$test_repo"
+    if [ -n "$test_root_dir" ]; then
+        log "Removing test's root directory: $test_root_dir"
+        rm -rf -- "$test_root_dir"
+    fi
 }
 
 test_make_commit() {
-    if [ "$#" -ne 1 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR"
-        return 1
-    fi
-
-    local repo="$1"
-
     local file
-    file="$( mktemp "--tmpdir=$repo" )"
+    file="$( mktemp "--tmpdir=$test_repo_workdir" )"
 
-    log "Commiting file $file in $repo..."
+    log "Commiting file $file in $test_repo_workdir..."
     touch -- "$file"
-    git -C "$repo" add "$file"
-    git -C "$repo" commit -q -m "$file"
+    git -C "$test_repo_workdir" add "$file"
+    git -C "$test_repo_workdir" commit -q -m "$file"
 }
 
 _validate_tag_kind() {
@@ -64,22 +57,20 @@ _validate_tag_kind() {
 }
 
 test_get_tags() {
-    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR [{lightweight|annotated}]"
+    if [ "$#" -gt 1 ]; then
+        log "usage: ${FUNCNAME[0]} [{lightweight|annotated}]"
         return 1
     fi
 
-    local repo="$1"
-
     local kind=
-    [ "$#" -gt 1 ] && kind="$( _validate_tag_kind "$2" )"
+    [ "$#" -gt 0 ] && kind="$( _validate_tag_kind "$1" )"
 
-    log "Reading tags in $repo..."
+    log "Reading tags in $test_repo_workdir..."
 
     local objecttype
     local refname
 
-    git -C "$repo" for-each-ref refs/tags/ \
+    git -C "$test_repo_workdir" for-each-ref refs/tags/ \
         '--format=%(objecttype)%0a%(refname:short)' |
     while IFS= read -r objecttype; do
         IFS= read -r refname
@@ -93,64 +84,53 @@ test_get_tags() {
 }
 
 test_get_tag_message() {
-    if [ "$#" -ne 2 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR TAG"
+    if [ "$#" -ne 1 ]; then
+        log "usage: ${FUNCNAME[0]} TAG"
         return 1
     fi
 
-    local repo="$1"
-    local tag="$2"
+    local tag="$1"
 
-    git -C "$repo" for-each-ref "refs/tags/$tag" '--format=%(contents)'
+    git -C "$test_repo_workdir" for-each-ref "refs/tags/$tag" '--format=%(contents)'
 }
 
 test_get_tag_commit() {
-    if [ "$#" -ne 2 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR TAG"
+    if [ "$#" -ne 1 ]; then
+        log "usage: ${FUNCNAME[0]} TAG"
         return 1
     fi
 
-    local repo="$1"
-    local tag="$2"
+    local tag="$1"
 
-    git -C "$repo" rev-list -n 1 "$tag" --
+    git -C "$test_repo_workdir" rev-list -n 1 "$tag" --
 }
 
 test_create_tags() {
-    if [ "$#" -lt 1 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR [TAG...]"
-        return 1
-    fi
-
-    local repo="$1"
-    shift
-
     local tag
     for tag; do
         log "Creating simple tag: $tag"
-        touch -- "$repo/$tag"
-        git -C "$repo" add "$repo/$tag"
-        git -C "$repo" commit -q -m "$tag"
-        git -C "$repo" tag -a -m "$tag" "$tag"
+        touch -- "$test_repo_workdir/$tag"
+        git -C "$test_repo_workdir" add "$test_repo_workdir/$tag"
+        git -C "$test_repo_workdir" commit -q -m "$tag"
+        git -C "$test_repo_workdir" tag -a -m "$tag" "$tag"
     done
 }
 
 test_validate_tags() {
-    if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
         log "usage: ${FUNCNAME[0]} REPO_DIR EXPECTED_TAGS [{lightweight,annotated}]"
         return 1
     fi
 
-    local repo="$1"
-    local expected="$2"
+    local expected="$1"
 
     local kind=
-    [ "$#" -gt 2 ] && kind="$( _validate_tag_kind "$3" )"
+    [ "$#" -gt 1 ] && kind="$( _validate_tag_kind "$2" )"
 
     local actual
-    actual="$( test_get_tags "$repo" $kind | paste -s -d ',' )"
+    actual="$( test_get_tags $kind | paste -s -d ',' )"
 
-    log "Validating tags in $repo..."
+    log "Validating tags in $test_repo_workdir..."
 
     [ "$actual" == "$expected" ] && return 0
 
@@ -161,19 +141,18 @@ test_validate_tags() {
 }
 
 test_validate_tag_message() {
-    if [ "$#" -lt 3 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR TAG EXPECTED_MSG"
+    if [ "$#" -ne 2 ]; then
+        log "usage: ${FUNCNAME[0]} TAG EXPECTED_MSG"
         return 1
     fi
 
-    local repo="$1"
-    local tag="$2"
-    local expected="$3"
+    local tag="$1"
+    local expected="$2"
 
     log "Validating tag message for tag: $tag"
 
     local actual
-    actual="$( test_get_tag_message "$repo" "$tag" )"
+    actual="$( test_get_tag_message "$tag" )"
 
     [ "$actual" == "$expected" ] && return 0
 
@@ -184,13 +163,11 @@ test_validate_tag_message() {
 }
 
 test_validate_tags_same_target() {
-    if [ "$#" -lt 3 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR TAG1 TAG2 [TAG...]"
+    if [ "$#" -lt 2 ]; then
+        log "usage: ${FUNCNAME[0]} TAG1 TAG2 [TAG...]"
         return 1
     fi
 
-    local repo="$1"
-    shift
     local tgt=
 
     local tag
@@ -198,7 +175,7 @@ test_validate_tags_same_target() {
         log "Validating tag target for tag: $tag"
 
         local output
-        output="$( test_get_tag_commit "$repo" "$tag" )"
+        output="$( test_get_tag_commit "$tag" )"
 
         if [ -z "$tgt" ]; then
             tgt="$output"
@@ -215,14 +192,7 @@ test_validate_tags_same_target() {
 }
 
 test_run_release_script() {
-    if [ "$#" -lt 1 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR [ARG...]"
-        return 1
-    fi
-
-    local repo="$1"
-    shift
-
-    log "Running release script..."
-    "$script_dir/../src/release.py" "$@" "$repo"
+    local cmd=("$script_dir/../src/release.py" --verbose "$@" "$test_repo_workdir")
+    log_run "${cmd[@]}"
+    "${cmd[@]}"
 }

@@ -1,8 +1,6 @@
-test_repo=
-
 test_run() {
-    test_repo="$( test_create_repo )"
-    test_make_commit "$test_repo"
-    test_run_release_script "$test_repo" major
-    test_validate_tags "$test_repo" v1.0.0
+    test_setup
+    test_make_commit
+    test_run_release_script major
+    test_validate_tags v1.0.0
 }

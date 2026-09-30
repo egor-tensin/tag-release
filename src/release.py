@@ -20,12 +20,13 @@ from enum import Enum
 import logging
 import os
 import re
+import shlex
 import subprocess
 import sys
 
 
 @contextmanager
-def setup_logging():
+def setup_logging(verbose=False):
     level_names = {
         logging.DEBUG: "DBG",
         logging.INFO: "INFO",
@@ -39,7 +40,7 @@ def setup_logging():
     logging.basicConfig(
         datefmt="%Y-%m-%d %H:%M:%S%z",
         format="%(asctime)s | %(levelname)4s | %(message)s",
-        level=logging.DEBUG,
+        level=logging.DEBUG if verbose else logging.INFO,
         stream=sys.stdout,
     )
     try:
@@ -62,7 +63,7 @@ def run(*args, **kwargs):
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT
 
-    logging.info("Running: %s", subprocess.list2cmdline(args))
+    logging.info("Running: %s", shlex.join(args))
     try:
         result = subprocess.run(
             args, check=True, stdout=stdout, stderr=stderr, encoding="utf-8", **kwargs
@@ -354,6 +355,7 @@ v1.2.3).
 
     parser = argparse.ArgumentParser(description=__doc__, epilog=epilog)
 
+    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
     parser.add_argument(
         "-p",
         "--prefix",
@@ -405,7 +407,7 @@ v1.2.3).
 
 def main(argv=None):
     args = parse_args(argv)
-    with setup_logging():
+    with setup_logging(args.verbose):
         go_to_repo(args.repo_dir)
         tags = TagManager(
             prefix=args.prefix,
@@ -416,8 +418,7 @@ def main(argv=None):
         new = tags.release_next(args.release_scope)
         if args.retag:
             tags.retag_parents(new)
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
