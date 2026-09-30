@@ -20,8 +20,8 @@ classifiers = [
 ]
 
 [project.urls]
-homepage = "https://github.com/egor-tensin/tag-release"
-issues = "https://github.com/egor-tensin/tag-release/issues"
+"Homepage" = "https://github.com/egor-tensin/tag-release"
+"Bug Tracker" = "https://github.com/egor-tensin/tag-release/issues"
 
 [project.scripts]
 tag-release = "release:main"
