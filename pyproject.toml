@@ -11,6 +11,7 @@ license = "MIT"
 license-files = ["LICENSE.txt"]
 dynamic = ["version"]
 authors = [{name = "Egor Tensin", email = "egor@tensin.name"}]
+readme = "README.md"
 requires-python = ">=3.8"
 # ^^^ For shlex.join, at least?
 
