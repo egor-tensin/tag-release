@@ -192,6 +192,6 @@ test_validate_tags_same_target() {
 }
 
 test_run_release_script() {
-    log "Running release script..."
+    log_run "$script_dir/../src/release.py" "$@" "$test_repo_workdir"
     "$script_dir/../src/release.py" "$@" "$test_repo_workdir"
 }
