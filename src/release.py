@@ -416,8 +416,7 @@ def main(argv=None):
         new = tags.release_next(args.release_scope)
         if args.retag:
             tags.retag_parents(new)
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
