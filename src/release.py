@@ -20,6 +20,7 @@ from enum import Enum
 import logging
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -62,7 +63,7 @@ def run(*args, **kwargs):
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT
 
-    logging.info("Running: %s", subprocess.list2cmdline(args))
+    logging.info("Running: %s", shlex.join(args))
     try:
         result = subprocess.run(
             args, check=True, stdout=stdout, stderr=stderr, encoding="utf-8", **kwargs
