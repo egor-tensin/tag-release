@@ -1,0 +1,33 @@
+[build-system]
+# The SPDX license identifiers are available from 77.0.3:
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license-and-license-files
+requires = ["setuptools >= 77.0.3", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tag-release"
+description = "Automate creation of semantic versioning tags"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+dynamic = ["version"]
+authors = [{name = "Egor Tensin", email = "egor@tensin.name"}]
+requires-python = ">=3.8"
+# ^^^ For shlex.join, at least?
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+]
+
+[project.urls]
+homepage = "https://github.com/egor-tensin/tag-release"
+issues = "https://github.com/egor-tensin/tag-release/issues"
+
+[project.scripts]
+tag-release = "release:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["release"]
+
+[tool.setuptools_scm]
