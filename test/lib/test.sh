@@ -192,6 +192,7 @@ test_validate_tags_same_target() {
 }
 
 test_run_release_script() {
-    log_run "$script_dir/../src/release.py" "$@" "$test_repo_workdir"
-    "$script_dir/../src/release.py" "$@" "$test_repo_workdir"
+    local cmd=("$script_dir/../src/release.py" --verbose "$@" "$test_repo_workdir")
+    log_run "${cmd[@]}"
+    "${cmd[@]}"
 }
