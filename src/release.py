@@ -269,7 +269,8 @@ class TagManager:
                     raise RuntimeError(msg)
                 logging.warning("%s", msg)
                 continue
-            yield refname.removeprefix(self._prefix), objecttype
+            yield refname[len(self._prefix) :], objecttype
+            # ^^^ .removeprefix for Python 3.9+
 
     @staticmethod
     def _is_tag_lightweight(objecttype):
