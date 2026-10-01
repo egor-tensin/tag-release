@@ -21,10 +21,16 @@ jobs:
       - name: Run black
         uses: psf/black@stable
 
-  test:
+  test_python:
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
     runs-on: ubuntu-latest
     name: 'Python ${{ matrix.python-version }}'
     steps:
@@ -39,10 +45,38 @@ jobs:
       - name: Run tests
         run: ./test/main.sh
 
+  test_ubuntu:
+    strategy:
+      matrix:
+        codename:
+          - focal
+          - jammy
+          - noble
+          - resolute
+    runs-on: ubuntu-latest
+    container:
+      image: 'ubuntu:${{ matrix.codename }}'
+    name: 'Ubuntu: ${{ matrix.codename }}'
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+              ca-certificates \
+              git \
+              python3
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Run tests
+        run: ./test/main.sh
+
   publish_pypi:
     needs:
       - lint
-      - test
+      - test_python
+      - test_ubuntu
     runs-on: ubuntu-latest
     name: Publish to PyPI
     steps:
