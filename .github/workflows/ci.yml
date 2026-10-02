@@ -123,6 +123,14 @@ jobs:
         SSH_KEY: |
           ${{ secrets.SSH_KEY }}
     steps:
+      # This step must be done before actions/checkout. From the latter's
+      # output:
+      #
+      #     To create a local Git repository instead, add Git 2.18 or higher to the PATH
+      #
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm git openssh
       - name: Checkout
         uses: actions/checkout@v7
         with:
