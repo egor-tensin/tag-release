@@ -1,3 +1,29 @@
+tag-release (0.4.12-1) unstable; urgency=medium
+
+  * consistent prelude.mk
+  * test: implicit variable usage
+  * test: factor out logging for running executables
+  * release.py: remove redundant sys.exit
+  * release.py: add --verbose flag
+  * release.py: subprocess.list2cmdline -> shlex.join
+  * test: call release.py w/ --verbose
+  * add pyproject.toml
+  * workflows/ci: add a job to publish to PyPI
+  * update PyPI project name
+  * pypi: fix URL labels
+  * pypi: add readme
+  * remove Makefile
+  * debian: restore prelude.mk, deleted in master
+  * workflows/ci: run tests on different vanilla Ubuntus
+  * compatibility w/ Python < 3.9
+  * workflows/ci: try moving AUR job setup steps to Makefile
+  * workflows/ci: disable PyPI publishing for now
+  * workflows/ci: dependencies for actions/checkout
+  * Revert "workflows/ci: disable PyPI publishing for now"
+  * debian: build as a proper Python package
+
+ -- Egor Tensin <egor@tensin.name>  Sat, 03 Oct 2026 20:05:12 +0000
+
 tag-release (0.4.5-1) unstable; urgency=medium
 
   * workflows/ci: don't publish to AUR on Debian tags
