@@ -5,7 +5,7 @@ EMAIL     ?= egor@tensin.name
 PPA_OWNER ?= egor-tensin
 PPA_NAME  ?= tag-release
 GPG_KEY   ?= 09AEA2BAD52882A1AF9D6042F218DB829A9905B5
-DIST      ?= focal
+DIST      ?= resolute
 
 $(eval $(call noexpand,NAME))
 $(eval $(call noexpand,EMAIL))
@@ -31,7 +31,15 @@ deps:
 		dh-make \
 		dput \
 		git-buildpackage \
-		vim
+		sudo \
+		vim \
+		\
+		python3 \
+		python3-setuptools \
+		python3-setuptools-scm \
+		\
+		dh-sequence-python3 \
+		pybuild-plugin-pyproject
 
 .PHONY: dch
 dch:
