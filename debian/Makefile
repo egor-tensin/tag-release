@@ -1,21 +1,14 @@
 include prelude.mk
 
-NAME      ?= Egor Tensin
-EMAIL     ?= egor@tensin.name
 PPA_OWNER ?= egor-tensin
 PPA_NAME  ?= tag-release
 GPG_KEY   ?= 09AEA2BAD52882A1AF9D6042F218DB829A9905B5
 DIST      ?= resolute
 
-$(eval $(call noexpand,NAME))
-$(eval $(call noexpand,EMAIL))
 $(eval $(call noexpand,PPA_OWNER))
 $(eval $(call noexpand,PPA_NAME))
 $(eval $(call noexpand,GPG_KEY))
 $(eval $(call noexpand,DIST))
-
-export NAME
-export EMAIL
 
 this_dir   := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 root       := $(this_dir)/..
