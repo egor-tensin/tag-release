@@ -73,6 +73,9 @@ jobs:
       - test_ubuntu
     runs-on: ubuntu-latest
     name: Publish to PyPI
+    if: |
+      startsWith(github.ref, 'refs/tags/')
+      && !startsWith(github.ref, 'refs/tags/debian/')
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -93,9 +96,6 @@ jobs:
           path: dist
           if-no-files-found: error
       - name: Publish to PyPI
-        if: |
-          startsWith(github.ref, 'refs/tags/')
-          && !startsWith(github.ref, 'refs/tags/debian/')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
