@@ -14,6 +14,14 @@ this_dir   := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 root       := $(this_dir)/..
 build_area := $(this_dir)/build-area
 
+.PHONY: docker
+docker:
+	uid="$$( stat -c '%u' . )" && \
+	gid="$$( stat -c '%g' . )" && \
+	docker compose build --build-arg UID="$$uid" --build-arg GID="$$gid"
+	docker compose run --rm builder
+	docker compose down -v
+
 .PHONY: deps
 deps:
 	apt update
