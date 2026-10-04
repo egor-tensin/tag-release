@@ -1,3 +1,10 @@
+tag-release (0.4.12-2) unstable; urgency=medium
+
+  * workflows/debian: run on Resolute specifically
+  * debian: switch from Vagrant to Docker
+
+ -- Egor Tensin <egor@tensin.name>  Sun, 04 Oct 2026 08:06:49 +0000
+
 tag-release (0.4.12-1) unstable; urgency=medium
 
   * consistent prelude.mk
