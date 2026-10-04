@@ -48,4 +48,4 @@ RUN gpg --keyserver hkp://keyserver.ubuntu.com/ --recv-keys "0x$GPG_KEY" && \
     echo "$GPG_KEY:6:" | gpg --import-ownertrust
 
 COPY [".", "/app"]
-WORKDIR /app
+WORKDIR /app/debian
