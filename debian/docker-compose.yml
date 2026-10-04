@@ -1,0 +1,10 @@
+services:
+  builder:
+    build:
+      context: ..
+      dockerfile: debian/Dockerfile
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - '../:/app'
+      - /run/user/1000/gnupg/S.gpg-agent.extra:/tmp/gnupg/S.gpg-agent
