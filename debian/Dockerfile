@@ -12,7 +12,7 @@ RUN if ! id -n -g "$GID" ; then \
     fi
 
 RUN if ! id -n -u "$UID" ; then \
-        useradd -u "$UID" -g "$GID" -s /bin/bash builder && \
+        useradd -u "$UID" -g "$GID" --shell /bin/bash --create-home builder && \
         passwd -d builder ; \
     fi
 
