@@ -32,8 +32,9 @@ RUN apt update && \
 #
 RUN echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 
-COPY ["debian/Makefile", "debian/prelude.mk", "/"]
-RUN make -C / deps
+COPY ["debian/prelude.mk", "/deps/"]
+COPY ["debian/Makefile", "/deps/"]
+RUN make -C /deps deps
 
 USER "$UID:$GID"
 
