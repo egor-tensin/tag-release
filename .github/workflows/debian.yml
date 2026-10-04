@@ -6,7 +6,8 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
+    # ^^^ For the newest setuptools. TODO: switch to latest.
     name: Binary package
     steps:
       - name: Checkout
