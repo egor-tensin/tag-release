@@ -30,16 +30,16 @@ deps:
 		devscripts \
 		dh-make \
 		dput \
+		fakeroot \
 		git-buildpackage \
+		openssh-client \
 		sudo \
-		vim \
-		\
-		python3 \
-		python3-setuptools \
-		python3-setuptools-scm \
 		\
 		dh-sequence-python3 \
-		pybuild-plugin-pyproject
+		pybuild-plugin-pyproject \
+		python3 \
+		python3-setuptools \
+		python3-setuptools-scm
 
 .PHONY: dch
 dch:
