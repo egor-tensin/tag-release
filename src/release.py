@@ -356,7 +356,12 @@ v1.2.3).
 
     parser = argparse.ArgumentParser(description=__doc__, epilog=epilog)
 
-    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="verbose output",
+    )
     parser.add_argument(
         "-p",
         "--prefix",
