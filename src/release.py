@@ -82,7 +82,7 @@ def go_to_repo(repo_dir=None):
         os.chdir(repo_dir)
     try:
         run(*["git", "rev-parse", "--is-inside-work-tree"])
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         logging.error("%s doesn't seem to be a git working directory", os.getcwd())
         raise
 
