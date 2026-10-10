@@ -520,7 +520,7 @@ def main(argv=None):
             new = tags.release_next(args.release_scope)
             updated = tags.retag_parents(new) if args.retag else []
             if args.push:
-                repo.push(new)
+                repo.push(new, remote=args.remote)
                 for tag in updated:
                     repo.push(tag, force=True, remote=args.remote)
 

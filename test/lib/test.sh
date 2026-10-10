@@ -94,9 +94,17 @@ test_get_tags() {
 }
 
 test_get_remote_tags() {
+    if [ "$#" -gt 1 ]; then
+        log "usage: ${FUNCNAME[0]} [REMOTE]"
+        return 1
+    fi
+
+    local remote=
+    [ "$#" -gt 0 ] && remote="$1"
+
     log "Fetching remote tags in $test_repo_workdir..."
 
-    git -C "$test_repo_workdir" ls-remote -q --tags --refs \
+    git -C "$test_repo_workdir" ls-remote -q --tags --refs $remote \
         | cut -f 2 -d $'\t' \
         | sed -e 's/refs\/tags\///' \
         | sort -V
@@ -160,15 +168,19 @@ test_validate_tags() {
 }
 
 test_validate_remote_tags() {
-    if [ "$#" -ne 1 ]; then
-        log "usage: ${FUNCNAME[0]} EXPECTED_TAGS"
+    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+        log "usage: ${FUNCNAME[0]} EXPECTED_TAGS [REMOTE]"
         return 1
     fi
 
     local expected="$1"
+    shift
+
+    local remote=
+    [ "$#" -gt 0 ] && remote="$1"
 
     local actual
-    actual="$( test_get_remote_tags | paste -s -d ',' )"
+    actual="$( test_get_remote_tags $remote | paste -s -d ',' )"
 
     log "Validating remote tags in $test_repo_workdir..."
 
