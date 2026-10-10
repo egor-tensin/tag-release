@@ -70,6 +70,11 @@ tags "v1" & "v1.1" to point to the new tag "v1.1.4":
 
       tag-release -r patch
 
+* Push new/updated tags automatically using `--push` (retagged tags are pushed
+forcefully):
+
+      tag-release -u patch
+
 * Create lightweight tags, if you wish (using annotated tags, which is the
 default, is almost always the preferred option):
 
