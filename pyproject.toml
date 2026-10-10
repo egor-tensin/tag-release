@@ -32,3 +32,8 @@ package-dir = {"" = "src"}
 py-modules = ["release"]
 
 [tool.setuptools_scm]
+
+[tool.pylint."messages control"]
+disable = [
+    "missing-docstring",
+]
