@@ -166,7 +166,7 @@ class Repo:
         try:
             run(cmd)
         except subprocess.CalledProcessError as e:
-            raise RuntimError(
+            raise RuntimeError(
                 f"Failed to push tag {tag.name} to remote {remote}"
             ) from e
 
