@@ -1,3 +1,22 @@
+tag-release (1.0.0-1) unstable; urgency=medium
+
+  * workflows: remove unnecessary action parameters
+  * debian: create /home/builder in Dockerfile
+  * Revert "workflows: remove unnecessary action parameters"
+  * workflows: add some comments
+  * debian: copy Makefile to /deps
+  * consistent argparse.add_argument formatting
+  * put Pylint settings into pyproject.toml
+  * fix a Pylint warning
+  * test/lib: fix wrong usage message
+  * add the --push option to push tags automatically
+  * test: add a test w/ --push & --retag
+  * README: update
+  * fix a typo
+  * test: add test for --remote
+
+ -- Egor Tensin <egor@tensin.name>  Sat, 10 Oct 2026 09:21:48 +0000
+
 tag-release (0.4.13-2) unstable; urgency=medium
 
   * debian/README: update
