@@ -118,7 +118,7 @@ test_create_tags() {
 
 test_validate_tags() {
     if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-        log "usage: ${FUNCNAME[0]} REPO_DIR EXPECTED_TAGS [{lightweight,annotated}]"
+        log "usage: ${FUNCNAME[0]} EXPECTED_TAGS [{lightweight,annotated}]"
         return 1
     fi
 
