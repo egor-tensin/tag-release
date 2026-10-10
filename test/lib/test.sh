@@ -3,18 +3,27 @@
 # For details, see https://github.com/egor-tensin/tag-release
 # Distributed under the MIT License.
 
+export GIT_CONFIG_NOSYSTEM=true
+export GIT_CONFIG_GLOBAL=/dev/null
+
 test_should_fail=
 test_root_dir=
 
+test_repo_upstream=
 test_repo_workdir=
 
 test_setup() {
     test_root_dir="$( mktemp -d )"
 
+    test_repo_upstream="$test_root_dir/upstream"
+    mkdir -- "$test_repo_upstream"
+    git -C "$test_repo_upstream" init -q --bare
+
     test_repo_workdir="$test_root_dir/workdir"
-    mkdir -- "$test_repo_workdir"
+    git clone -q "$test_repo_upstream" "$test_repo_workdir"
 
     log "Root directory: $test_root_dir"
+    log "Upstream directory: $test_repo_upstream"
     log "Working directory: $test_repo_workdir"
 
     git -C "$test_repo_workdir" init -q
@@ -37,6 +46,7 @@ test_make_commit() {
     touch -- "$file"
     git -C "$test_repo_workdir" add "$file"
     git -C "$test_repo_workdir" commit -q -m "$file"
+    git -C "$test_repo_workdir" push -q -u
 }
 
 _validate_tag_kind() {
@@ -81,6 +91,15 @@ test_get_tags() {
                 ;;
         esac
     done | sort -V
+}
+
+test_get_remote_tags() {
+    log "Fetching remote tags in $test_repo_workdir..."
+
+    git -C "$test_repo_workdir" ls-remote -q --tags --refs \
+        | cut -f 2 -d $'\t' \
+        | sed -e 's/refs\/tags\///' \
+        | sort -V
 }
 
 test_get_tag_message() {
@@ -135,6 +154,27 @@ test_validate_tags() {
     [ "$actual" == "$expected" ] && return 0
 
     fail "Unexpected tags"
+    fail_details "Expected tags: $expected"
+    fail_details "Actual tags:   $actual"
+    return 1
+}
+
+test_validate_remote_tags() {
+    if [ "$#" -ne 1 ]; then
+        log "usage: ${FUNCNAME[0]} EXPECTED_TAGS"
+        return 1
+    fi
+
+    local expected="$1"
+
+    local actual
+    actual="$( test_get_remote_tags | paste -s -d ',' )"
+
+    log "Validating remote tags in $test_repo_workdir..."
+
+    [ "$actual" == "$expected" ] && return 0
+
+    fail "Unexpected remote tags"
     fail_details "Expected tags: $expected"
     fail_details "Actual tags:   $actual"
     return 1

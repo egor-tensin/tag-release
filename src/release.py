@@ -59,14 +59,14 @@ def _run_log_output(level, output):
         logging.log(level, "    %s", line)
 
 
-def run(*args, **kwargs):
+def run(cmd, **kwargs):
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT
 
-    logging.info("Running: %s", shlex.join(args))
+    logging.info("Running: %s", shlex.join(cmd))
     try:
         result = subprocess.run(
-            args, check=True, stdout=stdout, stderr=stderr, encoding="utf-8", **kwargs
+            cmd, check=True, stdout=stdout, stderr=stderr, encoding="utf-8", **kwargs
         )
     except subprocess.CalledProcessError as e:
         logging.error("... Returned exit code %d", e.returncode)
@@ -77,14 +77,98 @@ def run(*args, **kwargs):
     return result.stdout
 
 
-def go_to_repo(repo_dir=None):
-    if repo_dir is not None:
-        os.chdir(repo_dir)
+@contextmanager
+def cd(path):
+    cwd = os.getcwd()
+    os.chdir(path)
     try:
-        run(*["git", "rev-parse", "--is-inside-work-tree"])
-    except subprocess.CalledProcessError:
-        logging.error("%s doesn't seem to be a git working directory", os.getcwd())
-        raise
+        yield
+    finally:
+        os.chdir(cwd)
+
+
+class Repo:
+    DEFAULT_REMOTE = "origin"
+
+    @staticmethod
+    @contextmanager
+    def setup(path=None):
+        if path is None:
+            path = os.getcwd()
+        with cd(path):
+            yield Repo(path)
+
+    def __init__(self, path):
+        self.path = path
+        self._validate_git_workdir(path)
+        self._branch = self._get_current_branch(path)
+        if self._branch is None:
+            self._remote = None
+        else:
+            self._remote = self._get_target_remote(path, self._branch)
+        self._remote = self._remote or Repo.DEFAULT_REMOTE
+
+    @staticmethod
+    def _validate_git_workdir(path):
+        try:
+            run(["git", "-C", path, "rev-parse", "--is-inside-work-tree"])
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                f"Doesn't seem to be a git working directory: {path}"
+            ) from e
+
+    @staticmethod
+    def _get_current_branch(path):
+        output = run(["git", "-C", path, "rev-parse", "--abbrev-ref", "HEAD"])
+        parts = output.splitlines()
+        if len(parts) > 1:
+            raise RuntimeError(f"Invalid `git rev-parse` output: {output}")
+        if not parts:
+            logging.warning("Our HEAD seems to be detached here: %s", path)
+            return None
+        result = parts[0]
+        logging.info("Working on branch '%s' here: %s", result, path)
+        return result
+
+    @staticmethod
+    def _get_target_remote(path, branch):
+        try:
+            cmd = [
+                "git",
+                "-C",
+                path,
+                "rev-parse",
+                "--abbrev-ref",
+                branch + "@{upstream}",
+            ]
+            output = run(cmd)
+        except subprocess.CalledProcessError:
+            logging.warning("Branch '%s' doesn't seem to have a target branch", branch)
+            return None
+        parts = output.splitlines()
+        if len(parts) != 1:
+            raise RuntimeError(f"Invalid `git rev-parse` output: {output}")
+        parts = parts[0]
+        parts = parts.split("/", maxsplit=1)
+        if len(parts) != 2:
+            raise RuntimeError(f"Unexpected `git rev-parse` output: {output}")
+        result = parts[0]
+        logging.info("Detected remote '%s' for branch '%s'", result, branch)
+        return result
+
+    def push(self, tag, force=False, remote=None):
+        if remote is None:
+            remote = self._remote
+        cmd = ["git", "-C", self.path, "push"]
+        if force:
+            cmd.append("-f")
+        cmd += [remote, tag.name]
+        try:
+            run(cmd)
+        except subprocess.CalledProcessError as e:
+            raise RuntimError(
+                f"Failed to push tag {tag.name} to remote {remote}"
+            ) from e
 
 
 class ReleaseScope(Enum):
@@ -253,7 +337,7 @@ class TagManager:
             "refs/tags/",
         ]
 
-        output = run(*cmd)
+        output = run(cmd)
         lines = output.splitlines()
 
         for line in lines:
@@ -304,7 +388,7 @@ class TagManager:
         cmd = tag.git_cmd_create(
             message=self._message_fmt.format(tag.name), target=target
         )
-        run(*cmd)
+        run(cmd)
 
         self._tag_lst.append(tag)
         self._tag_lst.sort(key=lambda tag: tag.version)
@@ -319,7 +403,7 @@ class TagManager:
         cmd = parent.git_cmd_update(child)
         env = os.environ.copy()
         env["GIT_EDITOR"] = "true"
-        run(*cmd, env=env)
+        run(cmd, env=env)
 
     def release_next(self, scope):
         version = scope.next_version(self.latest.version)
@@ -328,20 +412,22 @@ class TagManager:
         return tag
 
     def retag_parents(self, child):
+        updated = []
         while child.version.has_parent:
             parent_version = child.version.get_parent()
             if parent_version in self._tag_map:
                 parent = self._tag_map[parent_version]
                 self.update(parent, child)
-                child = parent
-                continue
-            parent = Tag(
-                self._format_tag_name(parent_version),
-                parent_version,
-                self._lightweight,
-            )
-            self.create(parent, target=child)
+            else:
+                parent = Tag(
+                    self._format_tag_name(parent_version),
+                    parent_version,
+                    self._lightweight,
+                )
+                self.create(parent, target=child)
+            updated.append(parent)
             child = parent
+        return updated
 
 
 def parse_args(argv=None):
@@ -390,10 +476,20 @@ v1.2.3).
         help="tag message format string",
     )
     parser.add_argument(
+        "-u",
+        "--push",
+        action="store_true",
+        help="push new tags",
+    )
+    parser.add_argument(
+        "--remote",
+        help='name of the remote to push to; unless specified or detected, defaults to "origin"',
+    )
+    parser.add_argument(
         "-r",
         "--retag",
         action="store_true",
-        help="update parent version tags (i.e. for tag v2.1.1, update tags v2 & v2.1 to point to it)",
+        help="update parent version tags (i.e. for tag v2.1.1, update tags v2 & v2.1 to the same commit); if --push is used, the updated tags are pushed w/ --force",
     )
     parser.add_argument(
         "release_scope",
@@ -414,16 +510,19 @@ v1.2.3).
 def main(argv=None):
     args = parse_args(argv)
     with setup_logging(args.verbose):
-        go_to_repo(args.repo_dir)
-        tags = TagManager(
-            prefix=args.prefix,
-            strict=args.strict,
-            lightweight=args.lightweight,
-            message_fmt=args.message_fmt,
-        )
-        new = tags.release_next(args.release_scope)
-        if args.retag:
-            tags.retag_parents(new)
+        with Repo.setup(args.repo_dir) as repo:
+            tags = TagManager(
+                prefix=args.prefix,
+                strict=args.strict,
+                lightweight=args.lightweight,
+                message_fmt=args.message_fmt,
+            )
+            new = tags.release_next(args.release_scope)
+            updated = tags.retag_parents(new) if args.retag else []
+            if args.push:
+                repo.push(new)
+                for tag in updated:
+                    repo.push(tag, force=True, remote=args.remote)
 
 
 if __name__ == "__main__":
