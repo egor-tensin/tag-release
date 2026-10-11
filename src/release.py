@@ -520,9 +520,9 @@ def main(argv=None):
             new = tags.release_next(args.release_scope)
             updated = tags.retag_parents(new) if args.retag else []
             if args.push:
-                repo.push(new, remote=args.remote)
-                for tag in updated:
+                for tag in updated[::-1]:
                     repo.push(tag, force=True, remote=args.remote)
+                repo.push(new, remote=args.remote)
 
 
 if __name__ == "__main__":
