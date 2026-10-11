@@ -1,10 +1,15 @@
 test_run() {
     test_setup
+    test_make_commit
     test_create_tags v1.0.0
 
+    test_make_commit
     test_run_release_script -l -m "shouldn't be visible" major
+    test_make_commit
     test_run_release_script -m "minor release" minor
+    test_make_commit
     test_run_release_script -p 'debian/' --message "Debian release {}" patch
+    test_make_commit
     test_run_release_script -m $'foo\n\nbar' patch
 
     test_validate_tags debian/0.0.1,v1.0.0,v2.0.0,v2.1.0,v2.1.1

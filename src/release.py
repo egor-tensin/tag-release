@@ -291,11 +291,11 @@ class Tag:
 
     def git_cmd_update(self, target):
         cmd = ["git", "tag"]
-        if self.lightweight:
-            return cmd + ["-f", self.name, target.name]
-        cmd += ["-a", "-f", self.name]
-        cmd.append(target.name + "^{}")
+        target = target.name + "^{}"
         # ^^^ Avoid tags-to-tags, which is somehow bad, idk.
+        if self.lightweight:
+            return cmd + ["-f", self.name, target]
+        cmd += ["-a", "-f", self.name, target]
         return cmd
 
 
@@ -520,9 +520,9 @@ def main(argv=None):
             new = tags.release_next(args.release_scope)
             updated = tags.retag_parents(new) if args.retag else []
             if args.push:
-                repo.push(new, remote=args.remote)
-                for tag in updated:
+                for tag in updated[::-1]:
                     repo.push(tag, force=True, remote=args.remote)
+                repo.push(new, remote=args.remote)
 
 
 if __name__ == "__main__":

@@ -29,6 +29,9 @@ test_setup() {
     git -C "$test_repo_workdir" init -q
     git -C "$test_repo_workdir" config user.name 'Test user'
     git -C "$test_repo_workdir" config user.email 'test@example.com'
+
+    test_make_commit
+    git -C "$test_repo_workdir" push -q -u
 }
 
 test_cleanup_default() {
@@ -46,7 +49,6 @@ test_make_commit() {
     touch -- "$file"
     git -C "$test_repo_workdir" add "$file"
     git -C "$test_repo_workdir" commit -q -m "$file"
-    git -C "$test_repo_workdir" push -q -u
 }
 
 _validate_tag_kind() {
@@ -136,9 +138,6 @@ test_create_tags() {
     local tag
     for tag; do
         log "Creating simple tag: $tag"
-        touch -- "$test_repo_workdir/$tag"
-        git -C "$test_repo_workdir" add "$test_repo_workdir/$tag"
-        git -C "$test_repo_workdir" commit -q -m "$tag"
         git -C "$test_repo_workdir" tag -a -m "$tag" "$tag"
     done
 }
