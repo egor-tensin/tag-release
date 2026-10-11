@@ -1,3 +1,12 @@
+tag-release (1.0.2-1) unstable; urgency=medium
+
+  * push tags in reverse order
+  * test: add a new test, rework some others
+  * preserve the parent tag type w/ --retag
+  * test: add a new test, add notes to others
+
+ -- Egor Tensin <egor@tensin.name>  Sun, 11 Oct 2026 15:19:41 +0000
+
 tag-release (1.0.0-1) unstable; urgency=medium
 
   * workflows: remove unnecessary action parameters
