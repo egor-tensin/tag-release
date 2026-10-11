@@ -291,11 +291,11 @@ class Tag:
 
     def git_cmd_update(self, target):
         cmd = ["git", "tag"]
-        if self.lightweight:
-            return cmd + ["-f", self.name, target.name]
-        cmd += ["-a", "-f", self.name]
-        cmd.append(target.name + "^{}")
+        target = target.name + "^{}"
         # ^^^ Avoid tags-to-tags, which is somehow bad, idk.
+        if self.lightweight:
+            return cmd + ["-f", self.name, target]
+        cmd += ["-a", "-f", self.name, target]
         return cmd
 
 
