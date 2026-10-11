@@ -1,6 +1,6 @@
 test_run() {
-    # This was a bug (or a feature mayhaps)? With a lightweight parent tag,
-    # it'd get remade into an annotated tag.
+    # This was a bug. With a lightweight parent tag, it would become a
+    # tag-to-tag, which is bad somehow.
 
     test_setup
 
@@ -16,4 +16,6 @@ test_run() {
     # annotated.
     test_validate_tags v1 lightweight
     test_validate_tags v1.1,v1.1.0 annotated
+
+    test_validate_tags_same_target v1 v1.1 v1.1.0
 }

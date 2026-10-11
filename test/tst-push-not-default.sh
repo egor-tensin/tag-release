@@ -1,4 +1,6 @@
 test_run() {
+    # Check that --push isn't enabled by default.
+
     test_setup
 
     test_make_commit

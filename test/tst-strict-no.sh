@@ -1,4 +1,5 @@
 test_run() {
+    # Check that we can swallow malformed tags unless --strict is enabled.
     test_setup
     test_make_commit
     test_create_tags v1 test_tag

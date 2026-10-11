@@ -1,4 +1,7 @@
 test_run() {
+    # Check that we can create lightweight tags w/ --retag, if you're that kind
+    # of person.
+
     test_setup
 
     test_make_commit

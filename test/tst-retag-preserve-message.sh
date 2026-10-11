@@ -1,4 +1,6 @@
 test_run() {
+    # Check that when retagging, the original tag message is preserved.
+
     test_setup
 
     test_make_commit
