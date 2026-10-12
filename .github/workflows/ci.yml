@@ -44,27 +44,19 @@ jobs:
   test_ubuntu:
     strategy:
       matrix:
-        codename:
+        # Keep in sync with those in Makefile & Launchpad:
+        distro:
           - focal
           - jammy
           - noble
           - resolute
     runs-on: ubuntu-latest
-    container:
-      image: 'ubuntu:${{ matrix.codename }}'
-    name: 'Ubuntu: ${{ matrix.codename }}'
+    name: 'Ubuntu: ${{ matrix.distro }}'
     steps:
-      - name: Install dependencies
-        run: |
-          apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
-              ca-certificates \
-              git \
-              python3
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Run tests
-        run: ./test/main.sh
+      - name: Test
+        run: make 'test/docker/${{ matrix.distro }}'
 
   publish_pypi:
     needs:
