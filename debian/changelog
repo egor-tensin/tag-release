@@ -1,3 +1,9 @@
+tag-release (1.0.3-1) unstable; urgency=medium
+
+  * enable running Docker tests locally
+
+ -- Egor Tensin <egor@tensin.name>  Mon, 12 Oct 2026 11:35:12 +0000
+
 tag-release (1.0.2-1) unstable; urgency=medium
 
   * push tags in reverse order
