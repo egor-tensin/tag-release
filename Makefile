@@ -5,7 +5,7 @@ all:
 
 .PHONY: test
 test:
-	./test/main.sh
+	./test/runner/main.sh
 
 test/docker/%: DO
 	cd test/docker && \

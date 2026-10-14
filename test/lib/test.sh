@@ -6,15 +6,10 @@
 export GIT_CONFIG_NOSYSTEM=true
 export GIT_CONFIG_GLOBAL=/dev/null
 
-test_should_fail=
-test_root_dir=
-
 test_repo_upstream=
 test_repo_workdir=
 
 test_setup() {
-    test_root_dir="$( mktemp -d )"
-
     test_repo_upstream="$test_root_dir/upstream"
     mkdir -- "$test_repo_upstream"
     git -C "$test_repo_upstream" init -q --bare
@@ -32,13 +27,6 @@ test_setup() {
 
     test_make_commit
     git -C "$test_repo_workdir" push -q -u
-}
-
-test_cleanup_default() {
-    if [ -n "$test_root_dir" ]; then
-        log "Removing test's root directory: $test_root_dir"
-        rm -rf -- "$test_root_dir"
-    fi
 }
 
 test_make_commit() {
@@ -243,7 +231,7 @@ test_validate_tags_same_target() {
 }
 
 test_run_release_script() {
-    local cmd=("$script_dir/../src/release.py" --verbose "$@" "$test_repo_workdir")
+    local cmd=("$tests_dir/../src/release.py" --verbose "$@" "$test_repo_workdir")
     log_run "${cmd[@]}"
     "${cmd[@]}"
 }
