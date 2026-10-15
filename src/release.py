@@ -17,12 +17,18 @@ import argparse
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
+from importlib import metadata
 import logging
 import os
 import re
 import shlex
 import subprocess
 import sys
+
+try:
+    __version__ = metadata.version("git_tag_release")
+except:
+    __version__ = "unknown"
 
 
 @contextmanager
@@ -442,6 +448,12 @@ v1.2.3).
 
     parser = argparse.ArgumentParser(description=__doc__, epilog=epilog)
 
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
     parser.add_argument(
         "-v",
         "--verbose",
