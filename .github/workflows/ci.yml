@@ -4,6 +4,8 @@ on:
   push:
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -12,6 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
@@ -35,6 +39,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -58,6 +63,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Test
         run: make 'test/docker/${{ matrix.distro }}'
@@ -76,6 +82,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -124,6 +131,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          persist-credentials: false
           ref: aur
           submodules: recursive
           token: '${{ secrets.GH_TOKEN }}'
