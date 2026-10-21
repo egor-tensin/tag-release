@@ -4,6 +4,8 @@ on:
   push:
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   test:
     runs-on: ubuntu-26.04
@@ -15,6 +17,7 @@ jobs:
         with:
           # Fetch tags, required for gbp.
           fetch-depth: 0
+          persist-credentials: false
           submodules: recursive
       - name: Install dependencies
         run: sudo make -C debian deps
