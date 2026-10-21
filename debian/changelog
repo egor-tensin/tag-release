@@ -1,3 +1,22 @@
+tag-release (1.0.7-1) unstable; urgency=medium
+
+  [ Egor Tensin ]
+  * test: upgrade test-harness
+  * test: upgrade test-harness
+  * dependabot: check git submodules
+  * add --version flag
+  * fix zizmor warnings
+  * workflows/ci: run zizmor
+  * workflows/ci: linting
+  * rename some GitHub secrets
+  * workflows/ci: a separate token is not needed
+  * workflows: fix & lint
+
+  [ dependabot[bot] ]
+  * build(deps): bump test/runner from `5dd19d7` to `9f07b36`
+
+ -- Egor Tensin <egor@tensin.name>  Wed, 21 Oct 2026 08:21:14 +0000
+
 tag-release (1.0.5-1) unstable; urgency=medium
 
   * test: migrate to test-harness
