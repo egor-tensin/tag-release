@@ -47,7 +47,7 @@ def setup_logging(verbose=False):
         datefmt="%Y-%m-%d %H:%M:%S%z",
         format="%(asctime)s | %(levelname)4s | %(message)s",
         level=logging.DEBUG if verbose else logging.INFO,
-        stream=sys.stdout,
+        stream=sys.stderr,
     )
     try:
         yield
@@ -413,9 +413,7 @@ class TagManager:
 
     def release_next(self, scope):
         version = scope.next_version(self.latest.version)
-        tag = Tag(f"{self._prefix}{version}", version, self._lightweight)
-        self.create(tag)
-        return tag
+        return Tag(f"{self._prefix}{version}", version, self._lightweight)
 
     def retag_parents(self, child):
         updated = []
@@ -459,6 +457,11 @@ v1.2.3).
         "--verbose",
         action="store_true",
         help="verbose output",
+    )
+    parser.add_argument(
+        "--print-only",
+        action="store_true",
+        help="print the next version & exit",
     )
     parser.add_argument(
         "-p",
@@ -530,6 +533,10 @@ def main(argv=None):
                 message_fmt=args.message_fmt,
             )
             new = tags.release_next(args.release_scope)
+            if args.print_only:
+                print(new.name)
+                sys.exit(0)
+            tags.create(new)
             updated = tags.retag_parents(new) if args.retag else []
             if args.push:
                 for tag in updated[::-1]:
