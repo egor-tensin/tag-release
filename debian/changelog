@@ -1,3 +1,14 @@
+tag-release (1.1.0-1) unstable; urgency=medium
+
+  [ Egor Tensin ]
+  * test: add a test to research nested tags
+  * add --print-only option
+
+  [ dependabot[bot] ]
+  * build(deps): bump zizmorcore/zizmor-action from 0.7.1 to 0.8.0
+
+ -- Egor Tensin <egor@tensin.name>  Fri, 06 Nov 2026 15:45:15 +0000
+
 tag-release (1.0.7-1) unstable; urgency=medium
 
   [ Egor Tensin ]
