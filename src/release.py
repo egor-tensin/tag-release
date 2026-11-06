@@ -524,24 +524,23 @@ v1.2.3).
 
 def main(argv=None):
     args = parse_args(argv)
-    with setup_logging(args.verbose):
-        with Repo.setup(args.repo_dir) as repo:
-            tags = TagManager(
-                prefix=args.prefix,
-                strict=args.strict,
-                lightweight=args.lightweight,
-                message_fmt=args.message_fmt,
-            )
-            new = tags.release_next(args.release_scope)
-            if args.print_only:
-                print(new.name)
-                sys.exit(0)
-            tags.create(new)
-            updated = tags.retag_parents(new) if args.retag else []
-            if args.push:
-                for tag in updated[::-1]:
-                    repo.push(tag, force=True, remote=args.remote)
-                repo.push(new, remote=args.remote)
+    with setup_logging(args.verbose), Repo.setup(args.repo_dir) as repo:
+        tags = TagManager(
+            prefix=args.prefix,
+            strict=args.strict,
+            lightweight=args.lightweight,
+            message_fmt=args.message_fmt,
+        )
+        new = tags.release_next(args.release_scope)
+        if args.print_only:
+            print(new.name)
+            sys.exit(0)
+        tags.create(new)
+        updated = tags.retag_parents(new) if args.retag else []
+        if args.push:
+            for tag in updated[::-1]:
+                repo.push(tag, force=True, remote=args.remote)
+            repo.push(new, remote=args.remote)
 
 
 if __name__ == "__main__":
