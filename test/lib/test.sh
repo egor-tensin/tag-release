@@ -9,6 +9,10 @@ export GIT_CONFIG_GLOBAL=/dev/null
 test_repo_upstream=
 test_repo_workdir=
 
+_git() {
+    git -C "$test_repo_workdir" "$@"
+}
+
 test_setup() {
     test_repo_upstream="$test_root_dir/upstream"
     mkdir -- "$test_repo_upstream"
@@ -21,12 +25,12 @@ test_setup() {
     log "Upstream directory: $test_repo_upstream"
     log "Working directory: $test_repo_workdir"
 
-    git -C "$test_repo_workdir" init -q
-    git -C "$test_repo_workdir" config user.name 'Test user'
-    git -C "$test_repo_workdir" config user.email 'test@example.com'
+    _git init -q
+    _git config user.name 'Test user'
+    _git config user.email 'test@example.com'
 
     test_make_commit
-    git -C "$test_repo_workdir" push -q -u
+    _git push -q -u
 }
 
 test_make_commit() {
@@ -35,8 +39,8 @@ test_make_commit() {
 
     log "Commiting file $file in $test_repo_workdir..."
     touch -- "$file"
-    git -C "$test_repo_workdir" add "$file"
-    git -C "$test_repo_workdir" commit -q -m "$file"
+    _git add "$file"
+    _git commit -q -m "$file"
 }
 
 _validate_tag_kind() {
@@ -70,7 +74,7 @@ test_get_tags() {
     local objecttype
     local refname
 
-    git -C "$test_repo_workdir" for-each-ref refs/tags/ \
+    _git for-each-ref refs/tags/ \
         '--format=%(objecttype)%0a%(refname:short)' |
     while IFS= read -r objecttype; do
         IFS= read -r refname
@@ -94,7 +98,7 @@ test_get_remote_tags() {
 
     log "Fetching remote tags in $test_repo_workdir..."
 
-    git -C "$test_repo_workdir" ls-remote -q --tags --refs $remote \
+    _git ls-remote -q --tags --refs $remote \
         | cut -f 2 -d $'\t' \
         | sed -e 's/refs\/tags\///' \
         | sort -V
@@ -107,26 +111,24 @@ test_get_tag_message() {
     fi
 
     local tag="$1"
-
-    git -C "$test_repo_workdir" for-each-ref "refs/tags/$tag" '--format=%(contents)'
+    _git for-each-ref "refs/tags/$tag" '--format=%(contents)'
 }
 
-test_get_tag_commit() {
+test_get_tag_rev() {
     if [ "$#" -ne 1 ]; then
         log "usage: ${FUNCNAME[0]} TAG"
         return 1
     fi
 
     local tag="$1"
-
-    git -C "$test_repo_workdir" rev-list -n 1 "$tag" --
+    _git rev-list -n 1 "$tag" --
 }
 
 test_create_tags() {
     local tag
     for tag; do
         log "Creating simple tag: $tag"
-        git -C "$test_repo_workdir" tag -a -m "$tag" "$tag"
+        _git tag -a -m "$tag" "$tag"
     done
 }
 
@@ -201,7 +203,7 @@ test_validate_tag_message() {
     return 1
 }
 
-test_validate_tags_same_target() {
+test_validate_tags_same_rev() {
     if [ "$#" -lt 2 ]; then
         log "usage: ${FUNCNAME[0]} TAG1 TAG2 [TAG...]"
         return 1
@@ -211,10 +213,10 @@ test_validate_tags_same_target() {
 
     local tag
     for tag; do
-        log "Validating tag target for tag: $tag"
+        log "Validating tag revision for: $tag"
 
         local output
-        output="$( test_get_tag_commit "$tag" )"
+        output="$( test_get_tag_rev "$tag" )"
 
         if [ -z "$tgt" ]; then
             tgt="$output"

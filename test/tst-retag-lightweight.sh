@@ -20,6 +20,6 @@ test_run() {
     test_validate_tags v1,v1.1.0,v1.1.1 annotated
     test_validate_tags v1.1,v1.1.2 lightweight
 
-    test_validate_tags_same_target v1 v1.1 v1.1.2
+    test_validate_tags_same_rev v1 v1.1 v1.1.2
     test_validate_tag_message v1 v1
 }
